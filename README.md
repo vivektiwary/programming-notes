@@ -1438,9 +1438,10 @@ Ex:
     Now these are peer objects that can delegate to 
     each other.
 
-[Back to table of contents](#table_of_contents)
+    [Back to table of contents](#table_of_contents)
 
 3. <a name='object_create'></a> Object.create:
+
     ```js
       if (!Object.create) {
         Object.create = function(o) {
