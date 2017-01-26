@@ -20,6 +20,7 @@
     1. [Callbacks](#callbacks)
     2. [Generators](#generators)
     3. [Promises](#promises)
+15. [Event Loop](#event_loop)
 
 ## <a name='prototypical_inheritance'></a> Prototypical Inheritance in JS
 
@@ -1693,7 +1694,7 @@ Ex:
 
 [Back to table of contents](#table_of_contents)
 
-**How event loop works in JS**:
+<a name='event_loop'></a>**How event loop works in JS**:
    >Our browser have following things:
    >1. call stack (js runtime)
    >2. WebAPIs (ex: setTimeout, DOM(document), ajax(XMLHttpRequest))
