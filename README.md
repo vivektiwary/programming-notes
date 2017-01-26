@@ -1460,6 +1460,7 @@ Ex:
 
 <a name='callbacks'></a>**Callbacks**:  
    * `callback hell`:
+   
         ```js
           setTimeout(function(){
             console.log('one');
@@ -1477,6 +1478,7 @@ Ex:
         nesting.
 
       Consider the below code:
+      
         ```js
           function one(cb) {
             console.log('one');
@@ -1498,11 +1500,13 @@ Ex:
         ```
 
    * `Inversion of control`:
+   
         >When we loose control over a program to let it
         execute by some third party library.
 
    * `Solving callback problems`:
       1. separate callbacks:
+      
             ```js
               function trySomething(ok, err) {
                 setTimeout(function(){
@@ -1531,6 +1535,7 @@ Ex:
             call both the methods: `Our code will break`.
 
       2. error-first style:
+      
             ```js
               function trySomething(cb) {
                 setTimeout(function(){
@@ -1560,6 +1565,7 @@ Ex:
 
   
 <a name='generators'></a>**Generators (yield) (`ES6`)**:
+
    ```js
         function* gen() {
           console.log('hello');
@@ -1582,6 +1588,7 @@ Ex:
    and `yield` can also return value to the calling function.
 
    Consider the below code:
+   
    ```js
     var run = coroutine(function* (){
       var x = 1 + (yield null);
@@ -1615,6 +1622,7 @@ Ex:
   generators.
 
   Consider the below code:
+  
    ```js
     function getData(d) {
       setTimeout(function() {run(d);}, 1000);
@@ -1632,16 +1640,15 @@ Ex:
 
 <a name='promises'></a>**Promises**:
    >JQuery style Promises:
+   
    ```js
         var wait = jQuery.Deferred();
         var p = wait.promise();
-
         // this happens when we listen for an event
         // continuation event
         p.done(function(value) {
           console.log(value);
         });
-
         // when we call resolve on Deferred, it will
         // automatically fires the 'done' event for 
         // any promises that are listening to it.
@@ -1651,6 +1658,7 @@ Ex:
    ```
    
    Ex:
+   
    ```js
         function waitForN(n) {
           var d = $.Deferred();
