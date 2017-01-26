@@ -998,10 +998,10 @@ Ex:
        
        >Foo func -------`.prototype`-------> unnamed object
           
-    Also the unnamed object is linked to the 
-    unnamed object of the 'Object' function and this
-    linkage is labeled as `[[p]]`.
-    (`[[p]]` is explained later in this notes)
+       Also the unnamed object is linked to the 
+       unnamed object of the 'Object' function and this
+       linkage is labeled as `[[p]]`.
+       (`[[p]]` is explained later in this notes)
 
     3. In addition to the above connection, there is 
        also a connection in the opposite direction.
