@@ -12,6 +12,14 @@
 11. [Modified Module Pattern](#modified_module_pattern)
 12. [Modern Module Pattern](#modern_module_pattern)
 13. [Object Orientation](#object_orientation)
+    1. [Prototype](#prototype)
+    2. [Inheritance](#inheritance)
+    3. [OLOO](#oloo)
+    4. [Object Create method](#object_create)
+14. [Async Pattern](#async_patterns)
+    1. [Callbacks](#callbacks)
+    2. [Generators](#generators)
+    3. [Promises](#promises)
 
 ## <a name='prototypical_inheritance'></a> Prototypical Inheritance in JS
 
@@ -924,7 +932,7 @@ Ex:
 [Back to table of contents](#table_of_contents)
 
 ##<a name='object_orientation'></a>Object Orienting:  
-1. prototype:
+1. <a name='prototype'></a>Prototype:
     ```js
         function Foo(who) {
           this.me = who;
@@ -944,84 +952,83 @@ Ex:
         a1.__proto__ === Foo.prototype;
         a1.__proto__ === a2.__proto__;
     ```
-Every single `object` is built by a constructor 
-function.
-Each time a constructor is called, a new object is
-created.
-A constructor makes an object `based on` its own
-prototype.`based on` is not completely true in case of 
-JavaScript.
-`based on` implies that we take the prototype and 
-  we stamp out a copy of it.
+    Every single `object` is built by a constructor 
+    function.
+    Each time a constructor is called, a new object is
+    created.
+    A constructor makes an object `based on` its own
+    prototype.`based on` is not completely true in case of 
+    JavaScript.
+    `based on` implies that we take the prototype and 
+      we stamp out a copy of it.
   
-This is true in `class` oriented languages.
-so `based on` give us the wrong idea.
+    This is true in `class` oriented languages.
+    so `based on` give us the wrong idea.
+    
+    A more appropriate way of saying the above thing is:
+    >A constructor makes an object `linked to` its own
+      prototype.
 
-A more appropriate way of saying the above thing is:
->A constructor makes an object `linked to` its own
-  prototype.
+    **Note**:
+    >While discussing the `new` keyword we said in 
+      the `second` step that it linked to an object.
+    
+    **Note**:
+    >Before anything gets executed in the above code
+    we already have somethings, which are:
+    >1. A function called `Object` (capital `O`)
+    >2. An object which does not have any name, but a
+      label named `Object.prototype`.
 
-**Note**:
->While discussing the `new` keyword we said in 
-  the `second` step that it linked to an object.
+    >Object func ----`.prototype`------> unnamed object
+    
+    >The `Object` function has been linked to the object
+    which does not have any name.  
+    On the unnamed object, we have functions like
+    `toString` and several values which are built in
+    the language.
 
-**Note**:
->Before anything gets executed in the above code
-we already have somethings, which are:
->1. A function called `Object` (capital `O`)
->2. An object which does not have any name, but a
-  label named `Object.prototype`.
-
->Object func ----`.prototype`------> unnamed object
-
->The `Object` function has been linked to the object
-which does not have any name.  
->On the unnamed object, we have functions like
-`toString` and several values which are built in
-the language.
-
-When the first line of above code gets executed:
-1. We will have a function called `Foo`,         
-2. Its also going to create an `object` that 
-   we are linked to, and it will have the same 
-   arbitrary name: `.prototype`.
-   >Foo func -------`.prototype`-------> unnamed object
+    When the first line of above code gets executed:
+    1. We will have a function called `Foo`,         
+    2. Its also going to create an `object` that 
+          we are linked to, and it will have the same 
+          arbitrary name: `.prototype`.
+          >Foo func -------`.prototype`-------> unnamed object
           
-   Also the unnamed object is linked to the 
-   unnamed object of the 'Object' function and this
-   linkage is labeled as `[[p]]`.
-   (`[[p]]` is explained later in this notes)
+    Also the unnamed object is linked to the 
+    unnamed object of the 'Object' function and this
+    linkage is labeled as `[[p]]`.
+    (`[[p]]` is explained later in this notes)
 
+    3. In addition to the above connection, there is 
+       also a connection in the opposite direction.
+    The unnamed object has a property on the `function`
+    called `.constructor`.
 
-3. In addition to the above connection, there is 
-   also a connection in the opposite direction.
-   The unnamed object has a property on the `function`
-   called `.constructor`.
+    Foo function <------`.constructor`---- unnamed object
 
-   Foo function <------`.constructor`---- unnamed object
+    Most people think the '.constructor' means is
+    constructed by. In other words the unnamed object 
+    is constructed by the `function`.`But its not true`.
 
-   Most people think the '.constructor' means is
-   constructed by. In other words the unnamed object 
-   is constructed by the `function`.`But its not true`.
+    The word `constructor` is an arbitrary word
+    it could have been any other random word.
 
-   The word `constructor` is an arbitrary word
-   it could have been any other random word.
-
-   So there is a `two-way` linkage. Now when we execute the
+    So there is a `two-way` linkage. Now when we execute the
    `Foo.prototype.identify = function()` line, we put the
    `identify` property directly on the `unnamed` object.
 
-   Now coming on the code `var a1 = new Foo('a1')`
-   Here we have encountered the `new` keyword.
-   So four things will happen:
-   1. brand new object will gets created.
-   2. object gets linked to another object.
+    Now coming on the code `var a1 = new Foo('a1')`
+    Here we have encountered the `new` keyword.
+    So four things will happen:
+    1. brand new object will gets created.
+    2. object gets linked to another object.
       (so the newly created object will get linked
         to the `unnamed object.`)
-   3. The context gets set to the `this`. So the newly
+    3. The context gets set to the `this`. So the newly
       created object will have a property called `me`,
       which will have the value `a1`.
-   4. We return `this`, which gets assigned to the 
+    4. We return `this`, which gets assigned to the 
       variable `a1` in the code.
       So now the name of the newly created object will 
       be `a1`. 
@@ -1277,156 +1284,161 @@ When the first line of above code gets executed:
 
       But in general this is not a good practice.
 
+[Back to table of contents](#table_of_contents)
 
-  2. Inheritance:
-    Inheritance means that the child is having the copy of 
+2. <a name='inheritance'></a> Inheritance:
+    >Inheritance means that the child is having the copy of 
     what the parent have.
 
     So its not wise to call `prototypal inheritance` for 
     JavaScript as we are not using the word inheritance for
-    its correct meaning.
+    its `correct meaning`.
 
     In JavaScript when we have the object arbitrarily 
-    called 'Foo.prototype' and when we have 'a1' and 'a2' 
+    called `Foo.prototype` and when we have `a1` and `a2`
     object, they are linked in the opposite way to what
     inheritance does.
-    In inheritance we have the below structure:
-      `parent -----------> child`
+    In inheritance we have the below structure:  
+    
+      >`parent -----------> child`
+      
       meaning child is a copy of the parent.
     But in JS:
-      `Foo.prototype <----------- child`
-      meaning the child is behaivirally linked
+      >`Foo.prototype <----------- child`
+      
+      meaning the child is behaviorally linked
       to the prototype.
 
     This delegation in JS is a `design pattern` and it is
-    called 'Behavior Delegation'.
+    called `Behavior Delegation`.
 
+[Back to table of contents](#table_of_contents)
 
-  2. OLOO: (Objects Linked to Other Objects)
-    Consider the below code:
-      [js]
-        function Foo(who) {
-          this.me = who;
-        }
+3. <a name='oloo'></a> OLOO: (Objects Linked to Other Objects)
+    ```js
+    
+    function Foo(who) {
+      this.me = who;
+    }
 
-        Foo.prototype.identify = function() {
-          return `I am ` + this.me;
-        };
+    Foo.prototype.identify = function() {
+      return 'I am ' + this.me;
+    };
 
-        function Bar(who) {
-          Foo.call(this, who);
-        }
+    function Bar(who) {
+      Foo.call(this, who);
+    }
 
-        Bar.prototype = Object.create(Foo.prototype);
+    Bar.prototype = Object.create(Foo.prototype);
 
-        Bar.prototype.speak = function() {
-          alert(`Hello, ` + this.identify() + `.`);
-        };
+    Bar.prototype.speak = function() {
+      alert('Hello, ' + this.identify() + '.');
+    };
 
-        var b1 = new Bar(`b1`);
-        b1.speak();
+    var b1 = new Bar('b1');
+    b1.speak();
+    ```
 
-      [js]
+    In this code we only need to care about the three 
+    objects which are prototypically linked.
 
-      In this code we only need to care about the three 
-      objects which are prototypically linked.
+    `b1` is linked to `Bar.prototype`.
+    `Bar.prototype` is linked to `Foo.prototype`.
 
-      `b1` is linked to `Bar.prototype`.
-      `Bar.prototype` is linked to `Foo.prototype`.
+    Now the same thing can be achieved by using only the
+    `objects` rather than the `constructor`.
 
-      Now the same thing can be achieved by using only the
-      `objects` rather than the `constructor`.
+    As a first step towards refinement we will remove 
+    the `new` keyword.
+    The refined code will look like the below:
+    ```js
+      function Foo(who) {
+        this.me = who;
+      }
 
-      As a first step towards refinement we will remove 
-      the 'new' keyword.
-      The refined code will look like the below:
-        [js]
-          function Foo(who) {
-            this.me = who;
-          }
+      Foo.prototype.identify = function() {
+        return 'I am ' + this.me;
+      };
 
-          Foo.prototype.identify = function() {
-            return `I am ` + this.me;
-          };
+      function Bar(who) {
+        Foo.call(this, who);
+      }
 
-          function Bar(who) {
-            Foo.call(this, who);
-          }
+      Bar.prototype = Object.create(Foo.prototype);
 
-          Bar.prototype = Object.create(Foo.prototype);
+      Bar.prototype.speak = function() {
+        alert('Hello, ' + this.identify() + '.');
+      };
 
-          Bar.prototype.speak = function() {
-            alert(`Hello, ` + this.identify() + `.`);
-          };
-
-          var b1 = Object.create(Bar.prototype);
-          Bar.call(b1, `b1`);
-          b1.speak();
-        [js]
-
-      In this refinment remove the 'new' keyword and
-      instead use the 'Object.create' utility to 
-      create a `brand new object` and `link` the object to 
-      the `prototype`.
-
-      Then we explicitly bind the 'Bar' 'this' to 'b1'.
-
-      Consider the second refinment below:
-        [js]
-          function Foo(who) {
-            this.me = who;
-          }
-
-          Foo.prototype.identify = function() {
-            return `I am ` + this.me;
-          };
-
-          //changed
-          var Bar = Object.create(Foo.prototype);
-          Bar.init = function(who) {
-            Foo.call(this, who);
-          };
-
-          // changed
-          Bar.speak = function() {
-            alert(`Hello, ` + this.identify() + `.`);
-          };
-
-          var b1 = Object.create(Bar); // changed
-          b1.init(`b1`); // changed
-          b1.speak();
+      var b1 = Object.create(Bar.prototype);
+      Bar.call(b1, 'b1');
+      b1.speak();
+    ```
         [js]
 
-      In this refinment, we have ditched the function `Bar`
-      and made `Bar` an object instead.
+    In this refinement remove the `new` keyword and
+    instead use the `Object.create` utility to 
+    create a `brand new object` and `link` the object to 
+    the `prototype`.
 
-      Consider the third refinment:
-        [js]
-          var Foo = {
-            init: function(who) {
-              this.me = who;
-            },
-            identify: function() {
-              return `I am ` + this.me;
-            }
-          };
+    Then we explicitly bind the `Bar` `this` to `b1`.
 
-          var Bar = Object.create(Foo);
-          
-          Bar.speak = function() {
-            alert(`Hello, ` + this.identify() + `.`);
-          };
+    Consider the second refinement below:
+    ```js
+      function Foo(who) {
+        this.me = who;
+      }
 
-          var b1 = Object.create(Bar); 
-          b1.init(`b1`); 
-          b1.speak();
-        [js]
+      Foo.prototype.identify = function() {
+        return 'I am ' + this.me;
+      };
 
-        Now these are peer objects that can delegate to 
-        each other.
+      //changed
+      var Bar = Object.create(Foo.prototype);
+      Bar.init = function(who) {
+        Foo.call(this, who);
+      };
 
-  3. Object.create:
-    [js]
+      // changed
+      Bar.speak = function() {
+        alert('Hello, ' + this.identify() + '.');
+      };
+
+      var b1 = Object.create(Bar); // changed
+      b1.init('b1'); // changed
+      b1.speak();
+    ```
+
+    In this refinement, we have ditched the function `Bar`
+    and made `Bar` an object instead.
+
+    Consider the third refinement:
+    ```js
+     var Foo = {
+       init: function(who) {
+         this.me = who;
+       },
+       identify: function() {
+         return 'I am ' + this.me;
+       }
+     };
+
+     var Bar = Object.create(Foo);    
+     Bar.speak = function() {
+       alert('Hello, ' + this.identify() + '.');
+     };
+
+     var b1 = Object.create(Bar); 
+     b1.init('b1'); 
+     b1.speak();
+    ```
+    Now these are peer objects that can delegate to 
+    each other.
+
+[Back to table of contents](#table_of_contents)
+
+3. <a name='object_create'></a> Object.create:
+    ```js
       if (!Object.create) {
         Object.create = function(o) {
           function F() {}
@@ -1434,192 +1446,189 @@ When the first line of above code gets executed:
           return new F();
         };
       }      
-    [js]
+    ```
+[Back to table of contents](#table_of_contents)
 
+## <a name='async_patterns'></a> Async Patterns:
+* Callbacks
+* Generators / Co-routines
+* Promises
 
-Async Patterns:
-  1. Callbacks
-  2. Generators / Coroutines
-  3. Promises
-
-  1. Callbacks:
-    
-    `callback hell`:
-      consider the below code:
-        [js]
+<a name='callbacks'></a>**Callbacks**:  
+   * `callback hell`:
+        ```js
           setTimeout(function(){
-            console.log(`one`);
+            console.log('one');
             setTimeout(function(){
-              console.log(`two`);
+              console.log('two');
               setTimeout(function(){
-                console.log(`three`);
+                console.log('three');
               }, 1000);
             }, 1000);
           }, 1000);
+        ```
 
-        [js]
-
-      *Note*:
-        callback hell does not have anything to do with 
+      **Note**:
+      >callback hell does not have anything to do with 
         nesting.
 
-      consider the below code:
-        [js]
+      Consider the below code:
+        ```js
           function one(cb) {
-            console.log(`one`);
+            console.log('one');
             setTimeout(cb, 1000);
           }
 
           function two(cb) {
-            console.log(`two`);
+            console.log('two');
             setTimeout(cb, 1000);
           }
 
           function three() {
-            console.log(`three`);
+            console.log('three');
           }
 
           one(function(){
             two(three)
           });
-        [js]
+        ```
 
-      `Inversion of control`:
-        When we loose controll over a program to let it
+   * `Inversion of control`:
+        >When we loose control over a program to let it
         execute by some third party library.
 
-    `Solving callback problems`:
+   * `Solving callback problems`:
       1. separate callbacks:
-        [js]
-          function trySomething(ok, err) {
-            setTimeout(function(){
-              var num = Math.random();
-              if (num > 0.5) ok(num);
-              else err(num);
-            }, 1000);
-          }
-
-          trySomething(
-            function(num){
-              console.log(`Success: ` + num);
-            },
-
-            function(num){
-              console.log(`Sorry: ` + num);
-            }
-          );
-        [js]
-        In this we expect the third party library to
-        call one method when there is  `success` and 
-        the other when there is `failure`.
-        But this is more `implicit trust`, because
-        we are trusting the them that they will call
-        `only one method`. But what will happen when they
-        call both the methods: `Our code will break`.
+            ```js
+              function trySomething(ok, err) {
+                setTimeout(function(){
+                  var num = Math.random();
+                  if (num > 0.5) ok(num);
+                  else err(num);
+                }, 1000);
+              }
+    
+              trySomething(
+                function(num){
+                  console.log('Success: ' + num);
+                },
+    
+                function(num){
+                  console.log('Sorry: ' + num);
+                }
+              );
+            ```
+            In this we expect the third party library to
+            call one method when there is  `success` and 
+            the other when there is `failure`.
+            But this is more `implicit trust`, because
+            we are trusting on them that they will call
+            `only one method`. But what will happen when they
+            call both the methods: `Our code will break`.
 
       2. error-first style:
-        [js]
-          function trySomething(cb) {
-            setTimeout(function(){
-              var num = Math.random();
-              if (num > 0.5) cb(null, num);
-              else cb(`Too low!`);
-            }, 1000);
-          }
-
-          trySomething(function(err, num){
-            if (err) {
-              console.log(err);
-            }
-            else{
-              console.log(`Number: ` + num);
-            }
-          });
-        [js]
-        In this code we have only  one function.
-        So we are only checking for the 'error' object.
-
-        But consider a scenario when they return an error
-        object and then a success value.
-        In this situation we will reject the success value
-        as we are only checking for the error object.
+            ```js
+              function trySomething(cb) {
+                setTimeout(function(){
+                  var num = Math.random();
+                  if (num > 0.5) cb(null, num);
+                  else cb('Too low!');
+                }, 1000);
+              }
+    
+              trySomething(function(err, num){
+                if (err) {
+                  console.log(err);
+                }
+                else{
+                  console.log('Number: ' + num);
+                }
+              });
+            ```
+      
+            In this code we have only  one function.
+            So we are only checking for the `error` object.
+    
+            But consider a scenario when they return an `error`
+            object and then a `success` value.
+            In this situation we will `reject` the `success` value
+            as we are only checking for the `error` object.
 
   
-  2. Generators (yield) (`ES6`):
-    consider the below code:
-      [js]
+<a name='generators'></a>**Generators (yield) (`ES6`)**:
+   ```js
         function* gen() {
-          console.log(`hello`);
+          console.log('hello');
           yield null;
-          console.log(`World`);
+          console.log('World');
         }
-
+    
         var it = gen();
         it.next(); // prints `Hello`
         it.next(); // prints `World`
-      [js]
-    so calling the `gen` function, creates an `iterator`.
-    so when we call `it.next()` it will start from the 
-    line 2 and execute till it encounters a 'yield' statement.
-    The second 'it.next()' will also run till it encounters
-    a 'yield' statement or till end of the program.
+   ```
+   So calling the `gen` function, creates an `iterator`.
+   so when we call `it.next()` it will start from the 
+   line 2 and execute till it encounters a `yield` statement.
+   The second `it.next()` will also run till it encounters
+   a `yield` statement or till end of the program.
 
-    'yield' is used for `two way message passing`.
-    meaning we can pass value to 'yield' from outside
-    and 'yield' can also return value to the calling function.
+   `yield` is used for `two way message passing`.
+   meaning we can pass value to `yield` from outside
+   and `yield` can also return value to the calling function.
 
-    consider the below code:
-      [js]  
-        var run = coroutine(function* (){
-          var x = 1 + (yield null);
-          var y = 1 + (yield null);
-          yield(x + y);
-        });
+   Consider the below code:
+   ```js
+    var run = coroutine(function* (){
+      var x = 1 + (yield null);
+      var y = 1 + (yield null);
+      yield(x + y);
+    });
 
-        run();
-        run(10);
-        console.log(`something: ` + run(30).value);
-      [js]
+    run();
+    run(10);
+    console.log('something: ' + run(30).value);
+   ```
 
-      So when first run() will be called, the 'yield' will
-      return 'null' to the function.
+  So when first `run()` will be called, the `yield` will
+  return `null` to the function.
 
-      When we call run(10), the value of the previous 'yield' 
-      expression will be 10.
-      So the value of 'x = 11'.
+  When we call `run(10)`, the value of the previous `yield` 
+  expression will be 10.
+  So the value of `x = 11`.
 
-      and it encounters the next 'yield' and 'null' will get
-      returned to 'run(10)'
+  and it encounters the next `yield` and `null` will get
+  returned to `run(10)`
 
-      now when 'run(30)' will get executed, 30 will get
-      substituted for the 'yield' expression and 
-      'y = 31'.
+  now when `run(30)` will get executed, 30 will get
+  substituted for the `yield` expression and 
+  `y = 31`.
 
-      Then it encounters the next 'yield' and (x + y) will
-      be returned which is '42'.
+  Then it encounters the next `yield` and (x + y) will
+  be returned which is `42`.
 
-    Till now everything was looking `synchronous` in 
-    generators.
+  Till now everything was looking `synchronous` in 
+  generators.
 
-    consider the below code:
-      [js]
-        function getData(d) {
-          setTimeout(function() {run(d);}, 1000);
-        }
+  Consider the below code:
+   ```js
+    function getData(d) {
+      setTimeout(function() {run(d);}, 1000);
+    }
 
-        var run = coroutine(function* (){
-          var x = 1 + (yield getData(10));
-          var y = 1 + (yield getData(30));
-          var answer = (yield getData(`something: ` + (x + y)));
-          console.log(answer);
-        });
+    var run = coroutine(function* (){
+      var x = 1 + (yield getData(10));
+      var y = 1 + (yield getData(30));
+      var answer = (yield getData('something: ' + (x + y)));
+      console.log(answer);
+    });
 
-        run();
-      [js]
+    run();
+   ````
 
-  3. Promises:
-    JQuery style Promises:
-      [js]
+<a name='promises'></a>**Promises**:
+   >JQuery style Promises:
+   ```js
         var wait = jQuery.Deferred();
         var p = wait.promise();
 
@@ -1635,120 +1644,116 @@ Async Patterns:
         setTimeout(function(){
           wait.resolve(Math.random());
         }, 1000);
-      [js]
-
-    ex:
-      [js]  
+   ```
+   
+   Ex:
+   ```js
         function waitForN(n) {
           var d = $.Deferred();
           setTimeout(d.resolve, n);
           return d.promise();
         }
-
+    
         // promise gets returned from the 
         // waitForN function, and when we call
         // '.then' we are listening for the 
         // continuation event on that returned promise.
         waitForN(1000).then(function() {
-          console.log(`hello world`);
+          console.log('hello world');
           return waitForN(2000);
         })
         .then(function(){
-          console.log(`finally!`);
+          console.log('finally!');
         });
-      [js]
 
-    Promises un-invert the 'inversion of control'
+   ```
+
+   Promises un-invert the `inversion of control`
   
 
-  prob:
-    Make three request to fetch some data from files 
-    asyncronously, but display them in the give order.
+   **Prob**:
+    Make three request to fetch some data from files
+    asynchronously, but display them in the given order.
 
-  sol:
+   **Sol**:
     For this problem we need to track the internal 
-    state of the call, if we are using 'callbacks'.
+    state of the call, if we are using `callbacks`.
 
+[Back to table of contents](#table_of_contents)
 
+**How event loop works in JS**:
+   >Our browser have following things:
+   >1. call stack (js runtime)
+   >2. WebAPIs (ex: setTimeout, DOM(document), ajax(XMLHttpRequest))
+   >3. event loop
 
-How event loop works in JS:
-  Our browser have following things:
-    1. call stack (js runtime)
-    2. WebAPIs (ex: setTimeout, DOM(document), ajax(XMLHttpRequest))
-    3. event loop
-
-  Actually JS is single threaded.
+  Actually JS is `single threaded`.
   So when we execute some things such as the below code:
-    [js]
-      console.log(`hiii there`);
+  ```js
+      console.log('hiii there');
       function foo() {
-        console.log(`hello`);
+        console.log('hello');
       }
       function bar() {
-        console.log(`there`);
+        console.log('there');
         foo();
       }
       function baz() {
-        console.log(`hi`);
+        console.log('hi');
         bar();
       }
       baz();
-    [js]
+  ```
 
-    How these things are executed by the JS runtime is:
-      1. At first 'main()' will appear in the stack.
-        'main()' is the anonymous function corresponding to the
+  How these things are executed by the JS runtime is:
+   >1. At first `main()` will appear in the stack.
+        `main()` is the anonymous function corresponding to the
         file itself.
-      2. then 'console.log(`hiii there`)' will appear in the
+   >2. then `console.log('hiii there')` will appear in the
         `stack`.
-      3. then `baz()`
-      4. then 'console.log(`hi`)'
-      5. then 'bar()'
-      6. then 'console.log(`there`)'
+   >3. then `baz()`
+   >4. then `console.log('hi')`
+   >5. then `bar()`
+   >6. then `console.log('there')`
       and like that.
 
   But consider the below code:
-    [js]
-      console.log(`hii there`);
+  ```js
+      console.log('hii there');
       setTimeout(function foo() {
         console.log('hello there')
       });
-      console.log(`hii`)
-    [js]
+      console.log('hii')
+  ```
 
-  how will this code gets executed?
-  When we check the 'call stack' we will find:
-    1. console.log(`hii there`) will get executed.
-    2. setTimeout(function foo() {
+  How will this code gets executed?
+  >When we check the 'call stack' we will find:
+  >1. console.log(`hii there`) will get executed.
+  >2. setTimeout(function foo() {
         console.log('hello there')
       }); will get executed but it will disappear from the 
       stack before executing console.log('hello there').
-    3. then console.log(`hii`) will get executed.
+  >3. then console.log(`hii`) will get executed.
 
   But where does that setTimeout function went?
-  
-  Actually 'setTimeout' is a function defined in `WebAPI`
-  not in actual `JS runtime`.
-
-  So the function after leaving the 'call stack' will 
-  enter into the `WebAPI` and that 'api' will keep track
-  of the 'timer'.
+  >Actually `setTimeout` is a function defined in `WebAPI`
+  not in actual `JS runtime`.  
+  >So the function after leaving the `call stack` will 
+  enter into the `WebAPI` and that `api` will keep track
+  of the `timer`.
   When the timer is complete, as it can not directly modify
-  the 'call stack', it will throw the function into the 
+  the `call stack`, it will throw the function into the 
   `event loop` or `task queue`.
-
   `Event loop` has to wait till the stack is clear, before 
-  it can push the 'callback' on the `call stack`.
+  it can push the `callback` on the `call stack`.
+  `setTimeout` is not a guaranteed time of execution, it is 
+  `minimum time` of execution.
 
-  `setTimeout` is not a guranteed time of execution, it is 
-  minimum time of execution.
-
-  When we block the stack with some 'slow' work, the 
+  When we block the stack with some `slow` work, the 
   browser does not render, (render queue gets stopped).
 
   So during that time, nothing will work, no buttons, no
   selection, nothing.
 
-  Where in case of asyncronous call, browser gets a chance
+  Where in case of `asynchronous call`, browser gets a chance
   to re-render after every call.
-  
