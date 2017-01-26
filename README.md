@@ -1287,7 +1287,7 @@ Ex:
 
       But in general this is not a good practice.
 
-    [Back to table of contents](#table_of_contents)
+      [Back to table of contents](#table_of_contents)
 
 2. <a name='inheritance'></a> Inheritance:
     >Inheritance means that the child is having the copy of 
