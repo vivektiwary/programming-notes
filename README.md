@@ -1537,24 +1537,24 @@ Ex:
 
       2. error-first style:
       
-            ```js
-              function trySomething(cb) {
-                setTimeout(function(){
-                  var num = Math.random();
-                  if (num > 0.5) cb(null, num);
-                  else cb('Too low!');
-                }, 1000);
-              }
-    
-              trySomething(function(err, num){
-                if (err) {
-                  console.log(err);
-                }
-                else{
-                  console.log('Number: ' + num);
-                }
-              });
-            ```
+        ```js
+          function trySomething(cb) {
+            setTimeout(function(){
+              var num = Math.random();
+              if (num > 0.5) cb(null, num);
+              else cb('Too low!');
+            }, 1000);
+          }
+
+          trySomething(function(err, num){
+            if (err) {
+              console.log(err);
+            }
+            else{
+              console.log('Number: ' + num);
+            }
+          });
+        ```
       
             In this code we have only  one function.
             So we are only checking for the `error` object.
