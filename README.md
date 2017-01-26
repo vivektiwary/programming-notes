@@ -1287,7 +1287,7 @@ Ex:
 
       But in general this is not a good practice.
 
-[Back to table of contents](#table_of_contents)
+    [Back to table of contents](#table_of_contents)
 
 2. <a name='inheritance'></a> Inheritance:
     >Inheritance means that the child is having the copy of 
@@ -1315,7 +1315,7 @@ Ex:
     This delegation in JS is a `design pattern` and it is
     called `Behavior Delegation`.
 
-[Back to table of contents](#table_of_contents)
+    [Back to table of contents](#table_of_contents)
 
 3. <a name='oloo'></a> OLOO: (Objects Linked to Other Objects)
     ```js
