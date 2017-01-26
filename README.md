@@ -995,6 +995,7 @@ Ex:
     2. Its also going to create an `object` that 
        we are linked to, and it will have the same 
        arbitrary name: `.prototype`.
+       
        >Foo func -------`.prototype`-------> unnamed object
           
     Also the unnamed object is linked to the 
