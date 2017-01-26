@@ -874,7 +874,7 @@ and we get choose what we return on our public `API`.
 
 [Back to table of contents](#table_of_contents)
 
-##<a name='modified_module_pattern'></a>`modified module pattern`:
+##<a name='modified_module_pattern'></a>modified module pattern:
 ```js
   var foo = (function() {
     var publicAPI = {
@@ -993,8 +993,8 @@ Ex:
     When the first line of above code gets executed:
     1. We will have a function called `Foo`,         
     2. Its also going to create an `object` that 
-          we are linked to, and it will have the same 
-          arbitrary name: `.prototype`.
+       we are linked to, and it will have the same 
+       arbitrary name: `.prototype`.
           >Foo func -------`.prototype`-------> unnamed object
           
     Also the unnamed object is linked to the 
