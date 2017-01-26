@@ -1508,32 +1508,32 @@ Ex:
    * `Solving callback problems`:
       1. separate callbacks:
       
-            ```js
-              function trySomething(ok, err) {
-                setTimeout(function(){
-                  var num = Math.random();
-                  if (num > 0.5) ok(num);
-                  else err(num);
-                }, 1000);
-              }
-    
-              trySomething(
-                function(num){
-                  console.log('Success: ' + num);
-                },
-    
-                function(num){
-                  console.log('Sorry: ' + num);
-                }
-              );
-            ```
-            In this we expect the third party library to
-            call one method when there is  `success` and 
-            the other when there is `failure`.
-            But this is more `implicit trust`, because
-            we are trusting on them that they will call
-            `only one method`. But what will happen when they
-            call both the methods: `Our code will break`.
+        ```js
+          function trySomething(ok, err) {
+            setTimeout(function(){
+              var num = Math.random();
+              if (num > 0.5) ok(num);
+              else err(num);
+            }, 1000);
+          }
+
+          trySomething(
+            function(num){
+              console.log('Success: ' + num);
+            },
+
+            function(num){
+              console.log('Sorry: ' + num);
+            }
+          );
+        ```
+        In this we expect the third party library to
+        call one method when there is  `success` and 
+        the other when there is `failure`.
+        But this is more `implicit trust`, because
+        we are trusting on them that they will call
+        `only one method`. But what will happen when they
+        call both the methods: `Our code will break`.
 
       2. error-first style:
       
