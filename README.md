@@ -802,8 +802,10 @@ But why?
  the last value.
 
 How to solve it ?
+
 1. Using `IIFI` pattern: we need to use the `IIFE` pattern.      
    Ex:
+   
     ```js
       for (var i=1; i<= 5; i++) {
         (function(i){
