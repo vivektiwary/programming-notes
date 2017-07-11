@@ -33,7 +33,7 @@ create a model inside `test/fixtures/sample_mail.rb` as a fixture to use in our 
 ```ruby
 # mail_form/1_attributes/test/fixtures/sample_mail.rb
 class SampleMail < MailForm::Base
-    attributes :name, :email
+  attributes :name, :email
 end
 ```
 
@@ -45,13 +45,13 @@ available as accessors in the `Mail Form` object:
 require "test_helper"
 require "fixtures/sample_mail"
 class MailFormTest < ActiveSupport::TestCase
-    test "sample mail has name and email as attributes" do
-        sample = SampleMail.new
-        sample.name = "User"
-        assert_equal "User", sample.name
-        sample.email = "user@example.com"
-        assert_equal "user@example.com", sample.email
-    end
+  test "sample mail has name and email as attributes" do
+    sample = SampleMail.new
+    sample.name = "User"
+    assert_equal "User", sample.name
+    sample.email = "user@example.com"
+    assert_equal "user@example.com", sample.email
+  end
 end
 ```
 
@@ -61,11 +61,11 @@ method:
 ```ruby
 # mail_form/1_attributes/lib/mail_form/base.rb
 module MailForm
-    class Base
-        def self.attributes(*names)
-            attr_accessor(*names)
-        end
+  class Base
+    def self.attributes(*names)
+      attr_accessor(*names)
     end
+  end
 end
 ```
 
@@ -77,7 +77,7 @@ let’s use Ruby’s `autoload()` instead:
 ```ruby
 # mail_form/1_attributes/lib/mail_form.rb
 module MailForm
-    autoload :Base, "mail_form/base"
+  autoload :Base, "mail_form/base"
 end
 ```
 
@@ -102,16 +102,16 @@ a test first:
 ```ruby
 # mail_form/2_attributes_prefix/test/mail_form_test.rb
 test "sample mail can clear attributes using clear_ prefix" do
-    sample = SampleMail.new
-    sample.name = "User"
-    sample.email = "user@example.com"
-    assert_equal "User", sample.name
-    assert_equal "user@example.com", sample.email
+  sample = SampleMail.new
+  sample.name = "User"
+  sample.email = "user@example.com"
+  assert_equal "User", sample.name
+  assert_equal "user@example.com", sample.email
 
-    sample.clear_name
-    sample.clear_email
-    assert_nil sample.name
-    assert_nil sample.email
+  sample.clear_name
+  sample.clear_email
+  assert_nil sample.name
+  assert_nil sample.email
 end
 ```
 
@@ -123,27 +123,27 @@ implementation:
 ```ruby
 # mail_form/2_attributes_prefix/lib/mail_form/base.rb
 module MailForm
-    class Base
-        include ActiveModel::AttributeMethods # 1) attribute methods behavior
-        attribute_method_prefix 'clear_' # 2) clear_ is attribute prefix
-        
-        def self.attributes(*names)
-            attr_accessor(*names)
-            
-            # 3) Ask to define the prefix methods for the given attribute names
-            define_attribute_methods(names)
-        end
-   
-        protected
-        
-        # 4) Since we declared a "clear_" prefix, it expects to have a
-        # "clear_attribute" method defined, which receives an attribute
-        # name and implements the clearing logic.
-        
-        def clear_attribute(attribute)
-            send("#{attribute}=", nil)
-        end
+  class Base
+    include ActiveModel::AttributeMethods # 1) attribute methods behavior
+    attribute_method_prefix 'clear_' # 2) clear_ is attribute prefix
+    
+    def self.attributes(*names)
+      attr_accessor(*names)
+      
+      # 3) Ask to define the prefix methods for the given attribute names
+      define_attribute_methods(names)
     end
+
+    protected
+    
+    # 4) Since we declared a "clear_" prefix, it expects to have a
+    # "clear_attribute" method defined, which receives an attribute
+    # name and implements the clearing logic.
+    
+    def clear_attribute(attribute)
+      send("#{attribute}=", nil)
+    end
+  end
 end
 ```
 
@@ -161,12 +161,12 @@ logic. As an example, let’s implement `name?()` and `email?()` methods, which 
 ```ruby
 # mail_form/3_attributes_suffix/test/mail_form_test.rb
 test "sample mail can ask if an attribute is present or not" do
-    sample = SampleMail.new
-    assert !sample.name?
-    sample.name = "User"
-    assert sample.name?
-    sample.email = ""
-    assert !sample.email?
+  sample = SampleMail.new
+  assert !sample.name?
+  sample.name = "User"
+  assert sample.name?
+  sample.email = ""
+  assert !sample.email?
 end
 ```
 
@@ -176,28 +176,28 @@ as a `suffix`, changing our `MailForm::Base` implementation to the following:
 ```ruby
 # mail_form/3_attributes_suffix/lib/mail_form/base.rb
 module MailForm
-    class Base
-        include ActiveModel::AttributeMethods
-        attribute_method_prefix 'clear_'
-        
-        # 1) Add the attribute suffix
-        attribute_method_suffix '?'
-        
-        def self.attributes(*names)
-            attr_accessor(*names)
-            define_attribute_methods(names)
-        end
-        
-        protected
-        def clear_attribute(attribute)
-            send("#{attribute}=", nil)
-        end
-        
-        # 2) Implement the logic required by the '?' suffix
-        def attribute?(attribute)
-            send(attribute).present?
-        end
+  class Base
+    include ActiveModel::AttributeMethods
+    attribute_method_prefix 'clear_'
+    
+    # 1) Add the attribute suffix
+    attribute_method_suffix '?'
+    
+    def self.attributes(*names)
+      attr_accessor(*names)
+      define_attribute_methods(names)
     end
+      
+    protected
+    def clear_attribute(attribute)
+      send("#{attribute}=", nil)
+    end
+      
+    # 2) Implement the logic required by the '?' suffix
+    def attribute?(attribute)
+      send(attribute).present?
+    end
+  end
 end
 ```
 
@@ -212,3 +212,131 @@ both the `prefix` and the `suffix`.
 of `Active Model`, is built on top of `ActiveModel::AttributeMethods` and defines a
 handful of methods like `attribute_changed?()` , `reset_attribute!()` , and so on. We can
 check the dirty implementation source code in the Rails repository.
+
+
+### Aiming for an Active Model–Compliant API:
+
+Even though we added attributes to our models to store form data, we need
+to ensure that our model complies with the `Active Model API`; otherwise, we
+won’t be able to use it in our controllers and views.
+
+As usual, we’ll achieve this compliance through `test-driven development`,
+except this time we won’t need to write the tests—Rails already provides all
+of them in a module called `ActiveModel::Lint::Tests`.
+When included, this module defines several tests asserting that 
+each method required in an `Active Model–compliant API` exists. Each of these 
+tests expects an instance variable named `@model` to return the object we 
+want to assert against. In our case, `@model` should contain an instance 
+of `SampleMail` , which will be compliant if `MailForm::Base` is 
+compliant. Let’s create a new test file called `test/compliance_test.rb`
+with the following:
+
+```ruby
+# mail_form/4_am_compliance/test/compliance_test.rb
+require 'test_helper'
+require 'fixtures/sample_mail'
+class ComplianceTest < ActiveSupport::TestCase
+  include ActiveModel::Lint::Tests
+  def setup
+    @model = SampleMail.new
+  end
+end
+```
+
+When we run rake test , we get several failures, all with this reason:
+
+> The object should respond to `to_model`.
+
+When `Rails controllers` and `view helpers` receive a `model`, they first call
+`to_model()` and `manipulate` the `returned result` instead of the `model directly`.
+This allows `ORM implementations` that don’t want to add `Active Model`
+methods to their API to return a `proxy object` where these methods are defined.
+In our case, we want to add `Active Model` methods directly to `MailForm::Base` .
+Consequently, our `to_model()` implementation should return `self` , as shown here:
+
+```ruby
+def to_model
+  self
+end
+```
+
+Although we could add this method to `MailForm::Base` , we are not going to
+implement it ourselves. Instead, let’s include `ActiveModel::Conversion` , which
+implements `to_model()` exactly as we discussed, and three other methods
+required by `Active Model`: `to_key()` , `to_param()` , and `to_partial_path()`.
+
+
+The `to_key()` method should return an `array of keys` that uniquely identifies
+the `model`, if any exists, and it is used by `dom_id()` in views. The `dom_id()` method
+was added to Rails along with `dom_class()` and a bunch of other helpers to better
+organize our views. For example, `div_for(@post)` , where `@post` is an `Active Record`
+instance of the `Post class` with an `id of 42`, relies on both these methods to
+create a div where the `id` attribute is equal to `post_42` and the `class` attribute is
+`post` . For Active Record, `to_key()` returns an array containing the `record ID` from
+the database.
+
+On the other hand, `to_param()` is used in `routing` and can be overwritten in any
+model to generate a unique URL for that model. When we invoke `post_path(@post)` ,
+Rails calls `to_param()` in the `@post` object and uses its result to generate the final
+URL. For Active Record, the default is to return the `ID` as a string.
+
+
+Finally, we have `to_partial_path()` . This method is invoked every time we pass a
+`record` or a `collection of records` to `render()` in our views. Rails will go through
+each of these records and retrieve the `path to their partial`. For example, the
+path to an `instance of the Post` class is `posts/post` .
+
+It is important to understand not only what those methods do, but also what
+they allow us to achieve. For example, by customizing `to_param()` , we can easily
+change the `URLs` of our `objects`. Imagine a `Post` class with `id` and `title` attributes;
+changing the URLs of those posts to include the `title` is as easy as this:
+
+```ruby
+def to_param
+  "#{id}-#{title.parameterize}"
+end
+```
+
+Similarly, imagine that each `Post` has a `different format`. It can be a video, a
+link, or a bunch of a text, and each of those formats should be rendered differently. 
+If we store the `format` of the blog post in the `format` attribute, we could
+`render` each post as follows:
+
+```ruby
+@posts.each do |post|
+  render partial: "posts/post_#{post.format}",
+    locals: { post: @post }
+end
+```
+
+However, by overriding `to_partial_path()` like this
+
+```ruby
+def to_partial_path
+  "posts/post_#{format}"
+end
+```
+
+our view would simply call
+
+>render @posts
+
+This not only makes our code cleaner, but also improves our application
+performance. In the first example, we end up going through `Rails’s rendering
+stack` many times, looking up `templates` and `duplicating efforts`. However, by
+customizing `to_partial_path()` , we call `render()` just once, allowing Rails to efficiently
+look up all `partials` in one take.
+
+The default `to_partial_path()` implementation available in `ActiveModel::Conversion`
+allows us to provide `partials` for `MailForm::Base` objects as in any Active Record
+object. However, since our objects are `never persisted`, they aren’t `uniquely
+identified`, meaning that both `to_key()` and `to_param()` should return `nil` . This is
+exactly the behavior provided by `ActiveModel::Conversion` . Let’s include it in our
+`MailForm::Base` class:
+
+```ruby
+# mail_form/4_am_compliance/lib/mail_form/base.rb
+module MailForm
+  class Base
+    include ActiveModel::Conversion
+```
