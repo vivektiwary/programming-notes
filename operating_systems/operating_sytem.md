@@ -1,4 +1,14 @@
+### Table of contents
 
+1. [Process Control block]('#process_control_block)
+2. [Implementing Safe Kernel Mode Transfers]('#safe_kernel_mode_transfer)
+3. [Need for Separate Kernel Stacks]('#need_for_separate_kernel_stack)
+4. [Kernel System Call Handler]('#kernel_system_call_handler')
+5. [Hardware support: Interrupt Control]('#hardware_support_interrupt_control')
+6. [Can a process create a process?]('#can_a_process_create_a_process')
+7. [UNIX Process Management]('#unix_process_management')
+8. [Shell]('#shell')
+9 [The file system abstraction]('#file_system_abstraction')
 
 What is an operating system?
 > Special layer of software that provides application
@@ -492,8 +502,295 @@ not give you a good way to deal with the `hole`.
 is, if we have to share some processes we have to make
 them overlap.
 
-
 > In x86, we have segments and each segment
 has its own base and bound. So there is a code segment,
 stack segment, heap segment. So it solves the problem
 of base and bound.
+
+
+### Single and Multi-threaded processes
+
+- In multi-threaded system, each thread has
+its own `registers` and `stack` but they share
+same `code`, `data` and `registers`.
+
+- Threads are encapsulated inside processes.
+
+
+**Simultaneous Multi-threading / Hyper-threading**:
+- We do threading using hardware in this technique.
+
+- Hardware technique:
+  - Super-scalar processors can execute 
+    multiple instructions that are independent.
+  - Hyper-threading duplicates register state to
+    make a second "thread", allowing more
+    instruction to run.
+  
+- Can schedule each thread as if were separate CPU
+  - But, sub-linear speedup
+  
+- Original technique called "Simultaneous Multi-threading"
+  
+  
+**Running Many Programs**:
+- We have the basic mechanism to
+  - switch between user processes and the kernel.
+  - the kernel can switch among user processes.
+  - Protect OS from user processes and processes
+  from each other.
+  
+
+### <a name='process_control_block'></a> Process Control Block
+
+- Kernel represent each process as a process
+control block(PCB)
+  - It's a structure one per process that essentially
+  says what's the `status` of the process.
+    - Status (running, ready, blocked, ...)
+  - What's is its `registers` state. Which means
+  when we put the process to sleep to run somebody
+  else I save all the registers, `PC`. These
+  things has to be stored somewhere, and they
+  are stored in `PCB`.
+    - Register State(when not ready)
+  - Things like below are stored in `PCB`
+    - Process ID(PID)
+    - what `User` stared it
+    - The `executable` code
+    - Process priority.
+    - How long been it's executing (Execution time)
+    - What's its `memory space`
+    
+  - So `PCB` captures identity of the process
+  which is required when we start executing process
+  after a sleep.
+  
+- Kernel Scheduler maintains a data structure 
+containing the `PCBs`.
+
+- Scheduling algorithm selects the next one to run.
+
+![scheduler image](images/scheduler.jpg)
+
+- Scheduling: Mechanism for dealing which processes/threads
+receive the CPU
+- Lots of different scheduling policies provide
+  - Fairness or
+  - Real-time guarantees or
+  - Latency optimisation ...
+  
+  
+### <a name='safe_kernel_mode_transfer'></a> Implementing Safe Kernel Mode Transfers
+- Important aspects:
+  - Separate kernel stack
+  - Controlled transfer into kernel(eg. `syscall` table)
+  - Stack will be different
+    
+- Carefully constructed kernel code packs up the 
+`user process state` and set it aside.
+  - Details depend on the machine architecture
+  
+- Should be impossible for buggy or malicious
+user program to cause the kernel to corrupt itself.
+
+- All the security problems arises when someone
+figured out an entry point to the kernel which
+is not that secured and allows then to execute
+their code with privileges.
+ 
+ 
+### <a name='need_for_separate_kernel_stack'></a> Need for Separate Kernel Stacks
+- Kernel needs space to work
+- Cannot put anything on the user stack(Why?)
+- Reason:
+  - The user might have screwed-up their `stack pointer` and
+  if the `kernel` goes along and blindly tries 
+  to use a stack pointer, their might not be a `stack`.
+  - It could be the user's stack is not `big enough`.
+  - If we have process with 2 thread and one thread 
+  enters the kernel, their is nothing to say that
+  the other thread can't look at the stack of the 
+  first thread. Why? Because they are in the same 
+  address space. As a result if the kernel is putting
+  some private information on the user stack, the other 
+  thread can see that.
+  - Every process has both `the user` and `the kernel` stack.
+  - User stack is used when you are in `user mode`
+  - Kernel stack is used when you are in `kernel mode`.
+ 
+- Two-stack model:
+  - OS thread has interrupt stack (located in kernel memory)
+  plus User stack(located in user memory)
+  - `Syscall handler` copies user args to kernel space
+  before invoking specific function (e.g., open)
+  
+**Note**: For more info refer to the `ppts`.
+
+
+### <a name='kernel_system_call_handler'></a> Kernel System Call Handler
+
+- Kernel got a bouncer who handles system calls
+  - Its a table mapping system call number to the handler.
+- It locate the arguments the user decided to put into that call
+  - It might be in registers or might be in the user stack
+- It copy those arguments
+  - From user memory into kernel memory(why you do that?)
+    - To protect kernel from malicious code evading checks
+- It validates the arguments to make sure they
+are not crazy(did they ask to read `-1` bytes from disk drives). Why?
+  - to protects kernel from errors in user code
+  
+- It copy result back to the `user memory`. It
+can give user access to the `kernel memory`.
+
+- All these things are done to ensure that user 
+don't mess-up with the `kernel`.
+
+
+### <a name='hardware_support_interrupt_control'></a> Hardware Support: Interrupt Control
+- Interrupt processing not be visible to the user process:
+  - Occurs between instructions, user code gets 
+  restarted transparently afterwards, the the user code
+  never knows the difference.
+  - We have to make sure that no change to process state 
+  happens before and after the interrupts.
+  - What can be observed even with perfect interrupt processing?
+    - time can be observed, as clock is running
+    
+- Interrupt handler gets invoked with `interrupts disabled`
+  - Re-enabled upon completion
+  - So the handler is non-blocking (run to completion, no waits)
+  - Pack up in a queue and pass off to an OS thread for 
+  hard work
+    - Wake up an existing OS thread.
+    
+- During interrupt processing the  OS kernel
+ may enable/disable interrupts by itself. The user
+ is never allowed to enable or disable the interrupts. 
+  - Why?
+    - If you disable interrupt, you turn off the timer and
+  get to run forever.
+    - You can loose data, why? because data comes in
+    in of a network, if interrupt does not happen, then
+    another packet over-writes it.
+    - You can lock the system up and not control
+    can get you out.
+ 
+ - On x86: CLI(disable interrupts), STI(enable)
+ - Atomic section when select next process/thread to run
+ - Atomic return from interrupt or syscall.
+ 
+**How do we take interrupts safely?
+- Interrupt vector (just like syscall vector (the table))
+  - Limited number of entry points into kernel.
+  
+- Kernel interrupt stack
+  - Handler works regardless of state of user code
+  
+- Interrupt masking(ability to turn of interrupt, so
+we don't get stuck to recursive interrupt loop)
+  - Handler is non-blocking
+  
+- Atomic transfer of control (when interrupts occur the 
+hardware goes and atomically saves below things before 
+transferring into the kernel)
+  - "Single instruction" - like to change:
+    - Program counter
+    - stack pointer
+    - memory protection
+    - kernel/user mode
+  
+- Transparent restartable execution after the
+interrupt has done processing.
+  - User program does not know interrupt occurred.
+
+***
+**Are their any operations on processes themselves? Not
+the operation they do?**:
+- What might you want to do with processes?
+  - Make new processes
+  - Kill old ones
+  - We might want to suspend it.
+  - We might want to share stuffs.
+  
+***
+### <a name='can_a_process_create_a_process'></a> Can a process create a process?**
+- yes
+- Fork creates a copy of process
+- Return value from Fork: Integer
+  - When > 0:
+    - Running in (original) Parent process
+    - Return value is pid of new child
+  - When = 0:
+    - Running in new `child process`.
+  - When < 0:
+    - Errors! Must handle somehow
+    - Running in original process.
+ 
+- All of the state of original process duplicated
+in both parent and child
+  - Memory, File Descriptors, etc..
+  
+- Kernel is the fundamental thing which creates
+the processes.
+
+
+### <a name='unix_process_management'></a> UNIX Process Management
+- UNIX `fork` - system call to create a copy of the 
+current process, and start it running
+  - No arguments!
+
+- UNIX `exec` - system call to change the program
+being run by the current process.
+
+- UNIX `wait` - system call to wait for a process
+to finish.(lets a process to wait for its children to finish).
+
+- UNIX `signal` - system call to send a notification
+to another process. (user level interrupts)
+
+
+### <a name='shell'></a> Shell
+- A shell is a job control system 
+  - Allows programmer to create and manage a set
+  of programs to do some task
+  - Windows, MacOS, Linux all have shells
+  
+- Example: to compile a `C` program
+  cc -c sourcefile1.c
+  cc -c sourcefile2.c
+  ln -o program sourcefile1.o sourcefile2.o
+  ./program
+  
+  
+### <a name='file_system_abstraction'></a> The file system abstraction
+- File
+  - Named collection of data in a file system
+  - File data can be anything(because of the uniform
+  interface in the UNIX I/O design, all these
+  things are treated as same)
+    - Text, binary, linearized objects
+  - File Metadata: information about the file
+    - Size, Modification Time, Owner, Security info
+    - Basis for access control
+  
+- Directory
+  - It's a file whose sole job is to map between
+    names and other other directories and files.  
+  - "Folder" containing files and directories
+  - Hierarchical (graphical) naming
+    - Path through the directory graph
+    - Uniquely identifies a file or directory
+  - It's a special file. 
+  
+
+**Connecting Processes, Filesystem and Users**
+- Process has a 'current working directory'
+- Absolute paths
+  - /home/ff/cs152
+- Relative paths
+  - index.html, ./index.html
+  
+- These paths are possible because we have current
+working directory.
