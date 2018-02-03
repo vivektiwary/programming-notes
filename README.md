@@ -24,8 +24,9 @@
 
 ## <a name='prototypical_inheritance'></a> Prototypical Inheritance in JS
 
-  >In JavaScript when one object inherits from another prototypically, you are able
-  to access all the properties and methods from the parent object.
+  > In JavaScript when one object inherits from another prototypically,
+  you are able to access all the properties and methods from the parent object.
+
 
 ```js
     var obj1 = {  
@@ -959,6 +960,16 @@ Ex:
     function.
     Each time a constructor is called, a new object is
     created.
+    
+    Note:
+    > It's important to understand that there is a distinction between an 
+    object's `prototype` (which is available via `Object.getPrototypeOf(obj)`, 
+    or via the deprecated `__proto__` property) and the `prototype` property on 
+    `constructor functions`. The former is the property on `each instance`, and 
+    the latter is the property on the `constructor`. That is, 
+    `Object.getPrototypeOf(new Foobar())` refers to the same object 
+    as `Foobar.prototype`.
+    
     A constructor makes an object `based on` its own
     prototype.`based on` is not completely true in case of 
     JavaScript.
